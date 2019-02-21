@@ -1,5 +1,6 @@
 package com.oeynet.dev.mockserver.serial;
 
+import com.oeynet.dev.mockserver.Global;
 import com.oeynet.dev.mockserver.api.Config;
 import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent;
@@ -50,6 +51,11 @@ public class PlcSerialPort {
     private RecvCallbackInterface callbackFunc;
 
 
+    /**
+     * @param config
+     * @param portName
+     * @param baud
+     */
     public PlcSerialPort(Config config, String portName, int baud) {
         this.config = config;
         this.portName = portName;
@@ -102,6 +108,7 @@ public class PlcSerialPort {
         if (config.getCurrent().getQueue().getRequest() <= queue.size()) {
             queue.poll();//废弃之前的请求
         }
+        //添加到请求
         queue.add(request);
         requestNo++;
     }
@@ -122,15 +129,25 @@ public class PlcSerialPort {
         //拷贝末尾
         System.arraycopy(SerialProtocolType.HEAD_BYTES, 0, buffer, 0, 2);
         //帧序号
-        int no = 0;
+        Global.NO++;
+        int no = Global.NO;
+        //byte ff
+        if (no > 255) {
+            no = 0;
+        }
+
         buffer[2] = (byte) no;//第2个字节
         buffer[3] = command;//命令
 
-        buffer[18] = addr;
-        buffer[19] = 0x13;//19个字节
+        buffer[19] = addr;
+        //帧相加帧序号到从机地址的字节和
 
+        buffer[20] = 0x0;
+        //前面字节和
+        for (int i = 2; i < 20; i++) {
+            buffer[20] += buffer[i];
+        }
         System.arraycopy(SerialProtocolType.FOOT_BYTES, 0, buffer, 21, 3);
-
         //填充序号
         this.send(buffer);
     }
@@ -171,6 +188,11 @@ public class PlcSerialPort {
             if (request != null) {
                 String msg = "当前帧序号：" + request.getNo() + " 收到帧序号：" + no;
                 System.out.println(msg);
+                //否则这个帧序号不一致怎么办？？
+                if (request.getNo() <= no) {
+                    //释放锁
+                    this.lock = -1;
+                }
             }
             //和当前的序号对比
             //if (request != null && request.getNo() == no) {
@@ -181,7 +203,7 @@ public class PlcSerialPort {
                 this.lock = -1;
                 this.request = null;
             }
-            //否则这个帧序号不一致怎么办？？
+
 
             //buffer 中解析发给我的是什么数据
             if (this.callbackFunc != null) {
@@ -193,11 +215,18 @@ public class PlcSerialPort {
         }
     }
 
-    //自动发送请求
+    /**
+     * 自动发送请求
+     * 需要等到上一帧返回后才能继续发送消息
+     *
+     * @throws IOException
+     */
     public void request() throws IOException {
+        //是否目前锁住了，不能发送消息
         if (lock > -1) return;
         this.request = queue.poll();//
         if (this.request == null) return;
+        System.out.println("发送数据：" + Arrays.toString(request.getBuffer()));
         //发送数据
         outputStream.write(request.getBuffer());
         this.lock = 0;
@@ -216,12 +245,11 @@ public class PlcSerialPort {
             if (request != null) {
                 msg += ",当前请求：" + request.getNo();
             }
-            config.pushMessage(5, msg, "error");
+//            config.pushMessage(5, msg, "error");
             System.out.println(msg);
             this.lock = -1;
             errCount++;//错误次数
         }
-
         if (errCount > 5) {
             String msg = "PLC反馈超时,跳关PLC与服务器的连接已掉线，请检查线路或重启服务器";
             config.pushMessage(10, msg, "error");

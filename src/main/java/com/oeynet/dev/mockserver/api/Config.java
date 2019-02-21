@@ -139,8 +139,6 @@ public class Config {
             if (code >= 255) {
                 code = 0;
             }
-
-
             serialPort.sendCommand(SerialProtocolType.SEARCH_COMMAND, SerialProtocolType.ALL_ADDR);
         } catch (IOException e) {
             e.printStackTrace();

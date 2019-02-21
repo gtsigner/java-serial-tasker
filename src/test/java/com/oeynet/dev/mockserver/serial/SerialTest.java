@@ -18,6 +18,8 @@ public class SerialTest {
     @Test
     public void send() throws Exception {
 
+        System.out.println("Hell：" + (byte) 254);
+
 
     }
 

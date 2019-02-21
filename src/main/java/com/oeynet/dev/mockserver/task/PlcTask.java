@@ -12,8 +12,9 @@ import java.io.IOException;
 public class PlcTask {
     /**
      * 同步查询PLC状态
+     * 每两秒取查询一次服务器状态
      */
-    @Scheduled(fixedRate = 1000)
+    @Scheduled(fixedRate = 2000)
     public void asyncPlc() {
         Config.getInstance().update();
     }

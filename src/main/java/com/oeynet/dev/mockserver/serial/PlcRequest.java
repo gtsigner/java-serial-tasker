@@ -49,6 +49,9 @@ public class PlcRequest {
 
     private RecvCallbackInterface callbackInterface;
 
+    /**
+     * @return
+     */
     public RecvCallbackInterface getCallbackInterface() {
         return callbackInterface;
     }

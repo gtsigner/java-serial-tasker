@@ -23,6 +23,7 @@ public class PlcBody {
 //    跳关数据1(D0-D7)	0x00-0xff	当前第几关卡
 //    从机状态(D8-D15)		D15=0:从机离线  D15=1:从机在线
 //    从机地址(D0-D7)	0x0-0x1f	0x0:广播地址(查询所有从机)  0x1-0x1f: 查询单台从机
+
     private byte[] buffer;
     private byte data1_l;
     private byte data1_t;
