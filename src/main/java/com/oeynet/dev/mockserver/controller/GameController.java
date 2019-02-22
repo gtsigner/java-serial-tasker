@@ -65,7 +65,7 @@ public class GameController {
         Map<String, Object> map = new HashMap<>();
 
         try {
-            map.put("code", Config.getInstance().getCode());
+            map.put("code", 1);
             map.put("message", "获取成功");
             ConfigRoot root = Config.getInstance().getConfig();
             ConfigGame gm = null;
@@ -94,18 +94,13 @@ public class GameController {
     public Map<String, Object> getGameStatus(@PathVariable("id") Integer gameId, HttpServletResponse response) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", gameId);
-        try {
-            ConfigGame game = config.getGame(gameId);
-            if (null == game) {
-                response.setStatus(400);
-                map.put("message", "对不起,未找到相关游戏信息，获取游戏状态失败");
-                return map;
-            }
-            config.getSerialPort().sendCommand(SerialProtocolType.SET_COMMAND, SerialProtocolType.ALL_ADDR);
-        } catch (IOException e) {
-            e.printStackTrace();
+        ConfigGame game = config.getGame(gameId);
+        if (null == game) {
             response.setStatus(400);
+            map.put("message", "对不起,未找到相关游戏信息，获取游戏状态失败");
+            return map;
         }
+        config.getSerialPort().sendSearchCmd(SerialProtocolType.ALL_ADDR);
         return map;
     }
 
@@ -128,14 +123,9 @@ public class GameController {
             map.put("message", "对不起,未找到相关游戏");
             return map;
         }
-
         //获取重置指令
-        try {
-            byte reset = (byte) game.getReset();
-            Config.getInstance().getSerialPort().sendCommand((byte) 0x0, (byte) 0x0);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        byte reset = (byte) game.getReset();
+        Config.getInstance().getSerialPort().sendSetCmd(reset, SerialProtocolType.ALL_ADDR);
         return map;
     }
 
@@ -150,18 +140,14 @@ public class GameController {
         Map<String, Object> map = new HashMap<>();
         map.put("message", "Success");
         map.put("code", 1001);
-
-        try {
-            ConfigGame game = config.getGame(gameId);
-            if (null == game) {
-                response.setStatus(400);
-                map.put("message", "对不起,未找到相关游戏信息，游戏准备失败");
-                return map;
-            }
-            config.getSerialPort().sendCommand((byte) 0x0, (byte) 0x0);
-        } catch (IOException e) {
-            e.printStackTrace();
+        ConfigGame game = config.getGame(gameId);
+        if (null == game) {
+            response.setStatus(400);
+            map.put("message", "对不起,未找到相关游戏信息，游戏准备失败");
+            return map;
         }
+        byte cmd = (byte) game.getReady();
+        Config.getInstance().getSerialPort().sendSetCmd(cmd, SerialProtocolType.ALL_ADDR);
         return map;
     }
 
@@ -176,18 +162,14 @@ public class GameController {
         Map<String, Object> map = new HashMap<>();
         map.put("message", "success");
         map.put("code", 1001);
-        try {
-            ConfigGame game = config.getGame(gameId);
-            if (null == game) {
-                response.setStatus(400);
-                map.put("message", "对不起,未找到相关游戏信息，游戏测试失败");
-                return map;
-            }
-            config.getSerialPort().sendCommand((byte) 0x0, (byte) 0x0);
-            System.out.println("test");
-        } catch (IOException e) {
-            e.printStackTrace();
+        ConfigGame game = config.getGame(gameId);
+        if (null == game) {
+            response.setStatus(400);
+            map.put("message", "对不起,未找到相关游戏信息，游戏测试失败");
+            return map;
         }
+        byte cmd = (byte) game.getStart();
+        Config.getInstance().getSerialPort().sendSetCmd(cmd, SerialProtocolType.ALL_ADDR);
         return map;
     }
 
@@ -202,18 +184,14 @@ public class GameController {
         Map<String, Object> map = new HashMap<>();
         map.put("message", "操作成功");
         map.put("code", 1001);
-        try {
-            ConfigGame game = config.getGame(gameId);
-            if (null == game) {
-                response.setStatus(400);
-                map.put("message", "对不起,未找到相关游戏信息，游戏开始失败");
-                return map;
-            }
-            config.getSerialPort().sendCommand((byte) 0x0, (byte) 0x0);
-            System.out.println("test");
-        } catch (IOException e) {
-            e.printStackTrace();
+        ConfigGame game = config.getGame(gameId);
+        if (null == game) {
+            response.setStatus(400);
+            map.put("message", "对不起,未找到相关游戏信息，游戏开始失败");
+            return map;
         }
+        byte cmd = (byte) game.getStart();
+        Config.getInstance().getSerialPort().sendSetCmd(cmd, SerialProtocolType.ALL_ADDR);
         return map;
     }
 
@@ -233,12 +211,7 @@ public class GameController {
         map.put("message", "success");
         map.put("code", 1001);
         map.put("data", roomId + level);
-        try {
-            config.getSerialPort().sendCommand(SerialProtocolType.SET_COMMAND, SerialProtocolType.ALL_ADDR);
-            System.out.println("test");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Config.getInstance().getSerialPort().sendSetCmd((byte) level, (byte) roomId);
         return map;
     }
 }

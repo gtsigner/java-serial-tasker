@@ -12,8 +12,8 @@ public class PlcRequest {
     private byte[] buffer;
     //超时
     private int timeout = 2000;
-    private int no = 0;
     private PlcResponse response;
+    private int noByteIndex = 2;
 
     public PlcResponse getResponse() {
         return response;
@@ -23,12 +23,13 @@ public class PlcRequest {
         this.response = response;
     }
 
+    /**
+     * 获取当前数请求数据的帧序号
+     *
+     * @return
+     */
     public int getNo() {
-        return no;
-    }
-
-    public void setNo(int no) {
-        this.no = no;
+        return Byte.toUnsignedInt(buffer[noByteIndex]);
     }
 
     public int getTimeout() {

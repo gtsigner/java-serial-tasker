@@ -107,14 +107,6 @@ public class Config {
         return isConnected;
     }
 
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
-
     public static synchronized Config getInstance() {
         if (null == _instance) {
             try {
@@ -132,20 +124,8 @@ public class Config {
 
 
     public void update() {
-        //不停的发送查询状态
-        try {
-            //查询所有的状态
-            code++;
-            if (code >= 255) {
-                code = 0;
-            }
-            serialPort.sendCommand(SerialProtocolType.SEARCH_COMMAND, SerialProtocolType.ALL_ADDR);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        serialPort.sendSearchCmd(SerialProtocolType.ALL_ADDR);
     }
-
 
     public Queue<Message> getMessageQueue() {
         return this.messageQueue;

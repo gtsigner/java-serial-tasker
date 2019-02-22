@@ -46,13 +46,14 @@ public class PlcResponse {
         //解析
         int len = buffer.length;
         if (len <= 8) {
-            throw new Exception("Response 解析失败");
+            throw new Exception("Response 解析失败，包长度：" + len);
         }
         //解析帧序号
         byte cmd = buffer[3];
         byte[] use = new byte[buffer.length - 8];
         System.arraycopy(buffer, 4, use, 0, use.length);
         this.bodies = parse(use);
+        this.request = request;
     }
 
     /**

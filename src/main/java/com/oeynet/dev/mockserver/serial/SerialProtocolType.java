@@ -16,9 +16,14 @@ public class SerialProtocolType {
     };
 
 
+    public static final byte START_TAG = 0x3e;
+    public static final byte END_TAG = 0x0a;
+
+
     public static final byte SEARCH_COMMAND = 0x01;//查询
     public static final byte SET_COMMAND = 0x02;//设置
-    public static final byte ALL_ADDR = 0x00;//设置
+
+    public static final byte ALL_ADDR = 0x00;//所有地址
 
     //查询正确
     public static final byte RES_SUCCESS = (byte) 0x81;
@@ -32,8 +37,7 @@ public class SerialProtocolType {
     public static final byte RES_SET_FAIL = (byte) 0xc2;
 
 
-    public static byte[] getCommand(byte command) {
+    public static final int TYPE_SET_COMMAND = 1;
+    public static final int TYPE_GET_COMMAND = 2;
 
-        return new byte[]{};
-    }
 }

@@ -11,6 +11,8 @@ import java.io.OutputStream;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import static com.oeynet.dev.mockserver.serial.SerialProtocolType.TYPE_SET_COMMAND;
+
 public class PlcSerialPort {
 
     private SerialPort port = null;
@@ -22,10 +24,13 @@ public class PlcSerialPort {
 
     //等待RS485串口服务器返回上一帧反馈信息（或失败延时）后，才能发送下一帧数据
     private Queue<PlcRequest> queue;
-    private int requestNo = 0;
+    private Queue<PlcRequest> setQueue;
 
-    //-1就没占用
-    private int lock = -1;
+
+    //-1就没占用>0就是被占用了
+    private int lock = 0;
+    private int timeout = 0;//超时计数器
+
     private PlcRequest request;
 
     private int errCount = 0;
@@ -37,6 +42,10 @@ public class PlcSerialPort {
 
     private boolean isConnected = false;
 
+    //plc 包
+    private PlcPacket plcPacket = new PlcPacket();
+
+
     private Config config;
 
     /**
@@ -44,7 +53,7 @@ public class PlcSerialPort {
      *
      * @param callbackFunc
      */
-    public void setCallbackFunc(RecvCallbackInterface callbackFunc) {
+    public synchronized void setCallbackFunc(RecvCallbackInterface callbackFunc) {
         this.callbackFunc = callbackFunc;
     }
 
@@ -62,7 +71,10 @@ public class PlcSerialPort {
         this.baud = baud;
         //设置容量
         int capacity = config.getCurrent().getQueue().getRequest();
+        //普通查询请求发送队列
         this.queue = new LinkedBlockingQueue<>(capacity);
+        //设置请求发送队列
+        this.setQueue = new LinkedBlockingQueue<>(capacity);
     }
 
     //链接
@@ -98,62 +110,59 @@ public class PlcSerialPort {
      * 发送数据
      *
      * @param buff
-     * @throws IOException
      */
-    public void send(byte[] buff) throws IOException {
+    public synchronized void sendBuffers(byte[] buff, int type) {
         //再发松之前先添加到队列里面
         PlcRequest request = new PlcRequest();
-        request.setNo(requestNo);
         request.setBuffer(buff);
-        if (config.getCurrent().getQueue().getRequest() <= queue.size()) {
-            queue.poll();//废弃之前的请求
+
+        if (type == TYPE_SET_COMMAND) {
+            if (config.getCurrent().getQueue().getRequest() <= setQueue.size()) {
+                setQueue.poll();//废弃之前的请求
+            }
+            setQueue.add(request);
+        } else {
+            if (config.getCurrent().getQueue().getRequest() <= queue.size()) {
+                queue.poll();//废弃之前的请求
+            }
+            //添加到请求
+            queue.add(request);
         }
-        //添加到请求
-        queue.add(request);
-        requestNo++;
     }
 
+
+    public synchronized int buildRequestNo() {
+        Global.NO++;
+        if (Global.NO > 255) {
+            Global.NO = 0;
+        }
+        return Global.NO;
+    }
 
     /**
      * 发送指令
      *
-     * @param command 命令
-     * @param addr    地址
-     * @throws IOException
+     * @param addr 地址
      */
-    public void sendCommand(byte command, byte addr) throws IOException {
-        byte[] buffer = new byte[24];//15个空字节
-        Arrays.fill(buffer, (byte) 0x00);
-        //前三个字节是写死的
-
-        //拷贝末尾
-        System.arraycopy(SerialProtocolType.HEAD_BYTES, 0, buffer, 0, 2);
-        //帧序号
-        Global.NO++;
-        int no = Global.NO;
-        //byte ff
-        if (no > 255) {
-            no = 0;
-        }
-
-        buffer[2] = (byte) no;//第2个字节
-        buffer[3] = command;//命令
-
-        buffer[19] = addr;
-        //帧相加帧序号到从机地址的字节和
-
-        buffer[20] = 0x0;
-        //前面字节和
-        for (int i = 2; i < 20; i++) {
-            buffer[20] += buffer[i];
-        }
-        System.arraycopy(SerialProtocolType.FOOT_BYTES, 0, buffer, 21, 3);
-        //填充序号
-        this.send(buffer);
+    public synchronized void sendSearchCmd(byte addr) {
+        int no = buildRequestNo();
+        byte[] buffer = PlcPacket.buildSendPacket(SerialProtocolType.SEARCH_COMMAND, addr, (byte) 0x0, no);
+        this.sendBuffers(buffer, SerialProtocolType.TYPE_GET_COMMAND);
     }
 
+    /**
+     * 发送设置命令
+     *
+     * @param level
+     * @param addr
+     */
+    public synchronized void sendSetCmd(byte level, byte addr) {
+        int no = buildRequestNo();
+        byte[] buffer = PlcPacket.buildSendPacket(SerialProtocolType.SET_COMMAND, addr, (byte) 0x0, no);
+        this.sendBuffers(buffer, SerialProtocolType.TYPE_SET_COMMAND);
+    }
 
-    public void close() {
+    public synchronized void close() {
         try {
             inputStream.close();
             outputStream.close();
@@ -172,42 +181,42 @@ public class PlcSerialPort {
      * @date 2018年7月21日下午3:43:04
      * @return: void
      */
-    public void readComm() {
+    public synchronized void readComm() {
         try {
             byte[] buffer = new byte[this.inputStream.available()];
             int len = 0;
             while ((len = inputStream.read(buffer)) != -1) {
-                // 保存串口返回信息
-                String data = new String(buffer, 0, len).trim();
-                // 保存串口返回信息十六进制
-                System.out.println("Recv Data：" + data);
                 break;
             }
-            //获取帧序号,然后销毁队列相关的请求
-            int no = (int) buffer[2];//帧序号
-            if (request != null) {
-                String msg = "当前帧序号：" + request.getNo() + " 收到帧序号：" + no;
-                System.out.println(msg);
-                //否则这个帧序号不一致怎么办？？
-                if (request.getNo() <= no) {
-                    //释放锁
-                    this.lock = -1;
+            System.out.println("收到新数据：" + Arrays.toString(buffer));
+
+            //使用解包器进行解包
+            List<byte[]> list = plcPacket.parsePackets(buffer);
+
+            System.out.println("解析到数据包：" + list.size());
+
+            for (byte[] itm : list) {
+                System.out.println("数据包：" + Arrays.toString(itm));
+
+                //获取帧序号,然后销毁队列相关的请求
+                int no = Byte.toUnsignedInt(itm[2]);//帧序号
+                if (request != null) {
+                    //回调
+                    PlcResponse response = new PlcResponse(request, itm);
+                    request.callback(response);
+                    //否则这个帧序号不一致怎么办？？和当前的序号对比
+                    if (request.getNo() <= no) {
+                        //已经收到消息了，直接释放锁
+                        this.lock = 0;
+                        this.timeout = 0;
+                        this.request = null;
+                    }
                 }
-            }
-            //和当前的序号对比
-            //if (request != null && request.getNo() == no) {
-            if (request != null) {
-                //回调
-                PlcResponse response = new PlcResponse(request, buffer);
-                request.callback(response);
-                this.lock = -1;
-                this.request = null;
-            }
 
-
-            //buffer 中解析发给我的是什么数据
-            if (this.callbackFunc != null) {
-                this.callbackFunc.callback(buffer);
+                //buffer 中解析发给我的是什么数据
+                if (this.callbackFunc != null) {
+                    this.callbackFunc.callback(itm);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -221,39 +230,55 @@ public class PlcSerialPort {
      *
      * @throws IOException
      */
-    public void request() throws IOException {
+    public synchronized void request() throws IOException {
         //是否目前锁住了，不能发送消息
-        if (lock > -1) return;
-        this.request = queue.poll();//
+        if (lock > 0) return;
+
+        //看看当前的优先设置队列是不是空
+        this.request = setQueue.poll();
+        if (this.request == null) {
+            this.request = queue.poll();//
+        }
         if (this.request == null) return;
+
         System.out.println("发送数据：" + Arrays.toString(request.getBuffer()));
         //发送数据
         outputStream.write(request.getBuffer());
-        this.lock = 0;
+
+        //验证是什么锁，需要锁住多少时间，默认全部5s
+        this.timeout = 0;
+        this.lock = 5;
     }
 
-
-    /**
-     * 释放锁
-     *
-     * @param timeout
-     */
-    public void freeLock(int timeout) {
-        this.lock++;
-        if (lock >= timeout + 1) {
-            String msg = "PLC反馈超时,当前：" + queue.size() + " 条未发送";
+    //验证是否超时需要释放锁
+    public synchronized boolean checkFree() {
+        if (this.lock < this.timeout) {
+            String msg = "PLC反馈超时，自动释放锁发送下一条数据，当前：" + queue.size() + " 条未发送，Lock=" + this.lock + ",Time=" + this.timeout;
             if (request != null) {
-                msg += ",当前请求：" + request.getNo();
+                msg += ",当前请求帧号：" + request.getNo() + "";
             }
-//            config.pushMessage(5, msg, "error");
             System.out.println(msg);
-            this.lock = -1;
             errCount++;//错误次数
+
+            //释放锁
+            this.lock = 0;
+            this.timeout = 0;
+
+            this.request = null;
+            return true;
         }
         if (errCount > 5) {
             String msg = "PLC反馈超时,跳关PLC与服务器的连接已掉线，请检查线路或重启服务器";
             config.pushMessage(10, msg, "error");
+            errCount = 0;
         }
+        return false;
+    }
 
+    /**
+     * 没秒释放倒计时
+     */
+    public synchronized void freeLock() {
+        this.timeout++;
     }
 }

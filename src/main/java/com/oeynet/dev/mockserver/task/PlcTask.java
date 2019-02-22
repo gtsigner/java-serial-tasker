@@ -10,12 +10,13 @@ import java.io.IOException;
 
 @Component
 public class PlcTask {
+
     /**
      * 同步查询PLC状态
      * 每两秒取查询一次服务器状态
      */
-    @Scheduled(fixedRate = 2000)
-    public void asyncPlc() {
+    @Scheduled(fixedRate = 5000)
+    public synchronized void asyncPlc() {
         Config.getInstance().update();
     }
 
@@ -24,8 +25,8 @@ public class PlcTask {
      *
      * @throws IOException
      */
-    @Scheduled(fixedRate = 50)
-    public void sendRequest() throws IOException {
+    @Scheduled(fixedRate = 5)
+    public synchronized void sendRequest() throws IOException {
         PlcSerialPort port = Config.getInstance().getSerialPort();
         port.request();
     }
@@ -34,8 +35,9 @@ public class PlcTask {
      * 释放Response 锁
      */
     @Scheduled(fixedRate = 1000)
-    public void freeLock() {
+    public synchronized void freeLock() {
         PlcSerialPort port = Config.getInstance().getSerialPort();
-        port.freeLock(5);//2s 请求超时
+        port.freeLock();//5s 请求超时
+        port.checkFree();
     }
 }

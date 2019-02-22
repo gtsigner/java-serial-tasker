@@ -18,7 +18,9 @@ public class SerialTest {
     @Test
     public void send() throws Exception {
 
-        System.out.println("Hell：" + (byte) 254);
+
+        byte bt = (byte) 0xff;
+        System.out.println("Hell：" + Byte.toUnsignedInt(bt) + "," + (byte) (255) +"," + (byte) (0xa));
 
 
     }
