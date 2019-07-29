@@ -37,7 +37,7 @@ public class SerialProtocolType {
     public static final byte RES_SET_FAIL = (byte) 0xc2;
 
 
-    public static final int TYPE_SET_COMMAND = 1;
-    public static final int TYPE_GET_COMMAND = 2;
+    public static final int TYPE_SET_COMMAND = 1;//设置状态
+    public static final int TYPE_GET_COMMAND = 2;//查询状态
 
 }

@@ -51,6 +51,8 @@
           "current": -1
         }
       ],
+      "status": [],
+
       "level": {
         "reset": 1,
         "ready": 0,

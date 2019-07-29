@@ -17,7 +17,7 @@ const router = new Router({
             meta: {
                 title: '首页',
             },
-            component: () => import(/* webpackChunkName: "about" */ '../views/home'),
+            component: () => import( '../views/home'),
         },
         {
             path: '/game/:id',
@@ -25,7 +25,33 @@ const router = new Router({
             meta: {
                 title: '游戏',
             },
-            component: () => import(/* webpackChunkName: "about" */ '../views/game'),
+            component: () => import('../views/game'),
+            children: [
+                {
+                    path: '/main',
+                    name: 'game-main',
+                    meta: {
+                        title: '游戏控制',
+                    },
+                    component: () => import( '../views/game/main'),
+                },
+                {
+                    path: '/control',
+                    name: 'game-control',
+                    meta: {
+                        title: '输出控制',
+                    },
+                    component: () => import( '../views/game/control'),
+                },
+                {
+                    path: '/status',
+                    name: 'game-status',
+                    meta: {
+                        title: '输入状态',
+                    },
+                    component: () => import( '../views/game/status'),
+                },
+            ]
         }
     ],
 });

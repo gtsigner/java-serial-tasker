@@ -11,8 +11,11 @@
             <i-button type="success" @click="setStart">一键开始</i-button>
             <i-button type="success" @click="testLine">测试线路</i-button>
             <i-button type="primary" @click="refresh">立即同步</i-button>
+            <i-button type="primary" @click="outputControl">输出控制</i-button>
+            <i-button type="primary" @click="inputStatus">输入状态</i-button>
         </div>
         <div class="room-container mt-5">
+            <router-view></router-view>
             <h3 v-if="rooms.length===0" class="text-center">
                 请您配置房间列表
             </h3>
@@ -138,6 +141,12 @@
 
 
                 });
+            },
+            outputControl() {
+                this.$router.push(`/game/${this.gameId}/control`);
+            },
+            inputStatus() {
+                this.$router.push(`/game/${this.gameId}/status`);
             }
         },
         //卸载timer

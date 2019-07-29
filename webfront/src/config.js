@@ -8,6 +8,8 @@ const isProd = process.env.NODE_ENV === 'production';
  */
 if (isProd === true) {
     config.API_HOST = '';//域名
+} else {
+    config.API_HOST = '';//域名
 }
 export default config;
 
