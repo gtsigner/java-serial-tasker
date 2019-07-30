@@ -1,6 +1,7 @@
 package com.oeynet.dev.mockserver.serial;
 
 import com.oeynet.dev.mockserver.domain.models.ConfigRoom;
+import com.oeynet.dev.mockserver.utils.ByteUtil;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -8,6 +9,13 @@ import java.util.Arrays;
 
 public class ProtocolTest {
 
+    @Test
+    public void test2() {
+
+        byte[] bt = new byte[]{1, 2};
+        System.out.println(ByteUtil.byteArr2BinArr(bt));
+        System.out.println(ByteUtil.byte2BinStr((byte) 1));
+    }
 
     @Test
     public void parse() {

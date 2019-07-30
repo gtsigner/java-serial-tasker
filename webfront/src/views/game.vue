@@ -1,6 +1,6 @@
 <template>
     <div class="game container-fluid">
-        <h1 class="page-title text-center">{{game.title}} 控制页面 {{counter}}</h1>
+        <h1 class="page-title text-center">{{game.title}} {{title}} {{counter}}</h1>
         <p class="mb-2 text-center">
             <router-link to="/">返回首页</router-link>
         </p>
@@ -11,29 +11,12 @@
             <i-button type="success" @click="setStart">一键开始</i-button>
             <i-button type="success" @click="testLine">测试线路</i-button>
             <i-button type="primary" @click="refresh">立即同步</i-button>
-            <i-button type="primary" @click="outputControl">输出控制</i-button>
-            <i-button type="primary" @click="inputStatus">输入状态</i-button>
+            <i-button type="info" size="small" @click="levelControl">关卡状态</i-button>
+            <i-button type="info" size="small" @click="outputControl">输出控制</i-button>
+            <i-button type="info" size="small" @click="inputStatus">输入状态</i-button>
         </div>
         <div class="room-container mt-5">
             <router-view></router-view>
-            <h3 v-if="rooms.length===0" class="text-center">
-                请您配置房间列表
-            </h3>
-            <Row class="row">
-                <Col :md="3" :lg="3" :xs="12" class="room-item-box text-center" v-for="(room,i) in rooms" :key="i">
-                    <Card class="room-item">
-                        <h5 slot="title" class="text-left">{{room.title}}
-                            <strong v-if="room.current===-1" class="color-red">未知</strong>
-                        </h5>
-                        <div class="level-list mt-4">
-                            <p v-for="(lv,t) in room.levels" class="color-blue level-item">
-                                <a class="cursor-pointer " @click="change(room,lv)">{{lv.title}} </a>
-                                <span v-if="lv.value===room.current" class="active color-success">●</span>
-                            </p>
-                        </div>
-                    </Card>
-                </Col>
-            </Row>
         </div>
     </div>
 </template>
@@ -97,6 +80,7 @@
                 this.counter = 0;
                 this.rooms = [...data.rooms];
                 //截取一条写入到通知栏中
+                this.$store.commit('SET_ROOMS', this.rooms);
             },
             //刷新
             async refresh() {
@@ -147,6 +131,14 @@
             },
             inputStatus() {
                 this.$router.push(`/game/${this.gameId}/status`);
+            },
+            levelControl() {
+                this.$router.push(`/game/${this.gameId}/main`);
+            }
+        },
+        computed: {
+            title() {
+                return this.$store.state.title;
             }
         },
         //卸载timer

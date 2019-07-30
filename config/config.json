@@ -1,6 +1,6 @@
 {
   "serial": {
-    "name": "COM2",
+    "name": "COM3",
     "baud": 9600
   },
   "games": [
@@ -28,6 +28,38 @@
               "value": 3
             }
           ],
+          "outputs": [
+            {
+              "port": "Y0",
+              "device": "写字台电锁",
+              "status": "4-0",
+              "value": 2,
+              "kind": 0
+            },
+            {
+              "port": "Y1",
+              "device": "光电开关",
+              "status": "10-1",
+              "value": 2,
+              "kind": 1
+            }
+          ],
+          "inputs": [
+            {
+              "port": "X0",
+              "device": "写字台电锁",
+              "status": "4-0",
+              "value": 2,
+              "kind": 0
+            },
+            {
+              "port": "X1",
+              "device": "光电开关",
+              "status": "5-2",
+              "value": 2,
+              "kind": 0
+            }
+          ],
           "current": -1
         },
         {
@@ -48,11 +80,41 @@
               "value": 3
             }
           ],
+          "outputs": [
+            {
+              "port": "Y0",
+              "device": "写字台电锁",
+              "status": "4-0",
+              "value": 2,
+              "kind": 0
+            },
+            {
+              "port": "Y1",
+              "device": "光电开关",
+              "status": "10-1",
+              "value": 2,
+              "kind": 1
+            }
+          ],
+          "inputs": [
+            {
+              "port": "X0",
+              "device": "写字台电锁",
+              "status": "4-0",
+              "value": 2,
+              "kind": 0
+            },
+            {
+              "port": "X1",
+              "device": "光电开关",
+              "status": "5-2",
+              "value": 2,
+              "kind": 0
+            }
+          ],
           "current": -1
         }
       ],
-      "status": [],
-
       "level": {
         "reset": 1,
         "ready": 0,

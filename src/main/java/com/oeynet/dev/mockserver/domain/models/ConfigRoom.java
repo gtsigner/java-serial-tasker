@@ -14,6 +14,36 @@ public class ConfigRoom {
     private boolean online = false;
     private int current = 0;
     private int action = 0;
+    private ArrayList<ConfigGameLevel> levels = new ArrayList<>();
+    private String body = "";
+    private ArrayList<ConfigGameDevices> outputs = new ArrayList<>();
+    private ArrayList<ConfigGameDevices> inputs = new ArrayList<>();
+
+
+    public ArrayList<ConfigGameDevices> getOutputs() {
+        return outputs;
+    }
+
+    public void setOutputs(ArrayList<ConfigGameDevices> outputs) {
+        this.outputs = outputs;
+    }
+
+    public ArrayList<ConfigGameDevices> getInputs() {
+        return inputs;
+    }
+
+    public void setInputs(ArrayList<ConfigGameDevices> inputs) {
+        this.inputs = inputs;
+    }
+
+
+    public String getBody() {
+        return body;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
+    }
 
     public int getAction() {
         return action;
@@ -47,7 +77,6 @@ public class ConfigRoom {
         this.id = id;
     }
 
-    private ArrayList<ConfigGameLevel> levels = new ArrayList<>();
 
     public String getTitle() {
         return title;
@@ -80,4 +109,5 @@ public class ConfigRoom {
     public void setLevels(ArrayList<ConfigGameLevel> levels) {
         this.levels = levels;
     }
+
 }

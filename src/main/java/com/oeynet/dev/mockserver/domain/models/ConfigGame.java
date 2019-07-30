@@ -13,6 +13,15 @@ public class ConfigGame {
     private int ready = 0;
     private int start = 0;
     private int reset = 0;
+    private byte[] body = new byte[0];
+
+    public byte[] getBody() {
+        return body;
+    }
+
+    public void setBody(byte[] body) {
+        this.body = body;
+    }
 
     public int getReady() {
         return ready;

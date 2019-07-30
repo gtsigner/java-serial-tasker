@@ -7,11 +7,11 @@ import mutations from './mutations';
 
 export default new Vuex.Store({
     state: {
-
+        game: {},
+        rooms: {},
+        title: '',
     },
-    getters: {
-
-    },
+    getters: {},
     mutations: mutations,
     actions: actions,
 });

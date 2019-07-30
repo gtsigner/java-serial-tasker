@@ -2,6 +2,9 @@ package com.oeynet.dev.mockserver.serial;
 
 import com.oeynet.dev.mockserver.domain.models.ConfigRoom;
 import com.oeynet.dev.mockserver.domain.models.ConfigRoot;
+import com.oeynet.dev.mockserver.utils.ByteUtil;
+
+import java.util.ArrayList;
 
 /**
  * 解析一组16位数据
@@ -169,6 +172,10 @@ public class PlcBody {
         return buffer;
     }
 
+    public String getBufferString() {
+        return ByteUtil.byteArray2String(buffer);
+    }
+
     public void setBuffer(byte[] buffer) {
         this.buffer = buffer;
     }
@@ -189,7 +196,6 @@ public class PlcBody {
         room.setCurrent(buffer[13]);
         //对应设置反馈信息
         room.setStatus(buffer[12]);
-
         if (buffer[12] == 1) {
             //主机令从机进行跳关
             room.setAction(1);
