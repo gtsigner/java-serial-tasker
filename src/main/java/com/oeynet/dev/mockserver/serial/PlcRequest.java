@@ -103,12 +103,18 @@ public class PlcRequest {
         }
     }
 
+    /**
+     * 解析设备
+     *
+     * @param device
+     * @param body
+     * @return
+     */
     private int parseDevice(ConfigGameDevices device, PlcBody body) {
         String[] names = device.getStatus().split("\\-");
         if (names.length != 2) {
             device.setValue(2);//未知
         }
-        System.out.println(names[0] + names[1]);
         //取第几个字节的第几位，然后分析高点还是低电
         int w = Integer.parseInt(names[0]) - 4;//第几个字节
         int v = Integer.parseInt(names[1]);//第几位
@@ -116,7 +122,13 @@ public class PlcRequest {
         return v;
     }
 
-
+    /**
+     * 解析package Val
+     * @param w
+     * @param v
+     * @param bufferStr
+     * @return
+     */
     private int parseGdVal(int w, int v, String bufferStr) {
         String[] arr = bufferStr.split(",");
         byte val = (byte) Integer.parseInt(arr[w], 16);//具体字节

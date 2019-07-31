@@ -30,14 +30,14 @@
           ],
           "outputs": [
             {
-              "port": "Y0",
+              "port": "Y21",
               "device": "写字台电锁",
-              "status": "4-0",
+              "status": "10-2",
               "value": 2,
               "kind": 0
             },
             {
-              "port": "Y1",
+              "port": "Y20",
               "device": "光电开关",
               "status": "10-1",
               "value": 2,
@@ -82,14 +82,14 @@
           ],
           "outputs": [
             {
-              "port": "Y0",
+              "port": "Y21",
               "device": "写字台电锁",
-              "status": "4-0",
+              "status": "10-2",
               "value": 2,
               "kind": 0
             },
             {
-              "port": "Y1",
+              "port": "Y20",
               "device": "光电开关",
               "status": "10-1",
               "value": 2,

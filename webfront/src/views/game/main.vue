@@ -33,6 +33,9 @@
         computed: {
             rooms() {
                 return this.$store.state.rooms;
+            },
+            gameId() {
+                return this.$route.params.id;
             }
         },
         methods: {

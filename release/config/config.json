@@ -1,0 +1,145 @@
+{
+  "serial": {
+    "name": "COM3",
+    "baud": 9600
+  },
+  "games": [
+    {
+      "id": 1,
+      "title": "游戏A",
+      "enable": true,
+      "note": "这是一个小游戏A",
+      "rooms": [
+        {
+          "id": 1,
+          "title": "房间A",
+          "online": false,
+          "levels": [
+            {
+              "title": "准备",
+              "value": 1
+            },
+            {
+              "title": "关卡1",
+              "value": 2
+            },
+            {
+              "title": "关卡2",
+              "value": 3
+            }
+          ],
+          "outputs": [
+            {
+              "port": "Y21",
+              "device": "写字台电锁",
+              "status": "10-2",
+              "value": 2,
+              "kind": 0
+            },
+            {
+              "port": "Y20",
+              "device": "光电开关",
+              "status": "10-1",
+              "value": 2,
+              "kind": 1
+            }
+          ],
+          "inputs": [
+            {
+              "port": "X0",
+              "device": "写字台电锁",
+              "status": "4-0",
+              "value": 2,
+              "kind": 0
+            },
+            {
+              "port": "X1",
+              "device": "光电开关",
+              "status": "5-2",
+              "value": 2,
+              "kind": 0
+            }
+          ],
+          "current": -1
+        },
+        {
+          "id": 2,
+          "title": "房间B",
+          "online": false,
+          "levels": [
+            {
+              "title": "准备",
+              "value": 1
+            },
+            {
+              "title": "关卡1",
+              "value": 2
+            },
+            {
+              "title": "关卡2",
+              "value": 3
+            }
+          ],
+          "outputs": [
+            {
+              "port": "Y21",
+              "device": "写字台电锁",
+              "status": "10-2",
+              "value": 2,
+              "kind": 0
+            },
+            {
+              "port": "Y20",
+              "device": "光电开关",
+              "status": "10-1",
+              "value": 2,
+              "kind": 1
+            }
+          ],
+          "inputs": [
+            {
+              "port": "X0",
+              "device": "写字台电锁",
+              "status": "4-0",
+              "value": 2,
+              "kind": 0
+            },
+            {
+              "port": "X1",
+              "device": "光电开关",
+              "status": "5-2",
+              "value": 2,
+              "kind": 0
+            }
+          ],
+          "current": -1
+        }
+      ],
+      "level": {
+        "reset": 1,
+        "ready": 0,
+        "start": 2
+      }
+    },
+    {
+      "id": 2,
+      "title": "游戏B",
+      "enable": false
+    },
+    {
+      "id": 3,
+      "title": "游戏C",
+      "enable": false
+    },
+    {
+      "id": 4,
+      "title": "游戏D",
+      "enable": false
+    }
+  ],
+  "status": 0,
+  "queue": {
+    "messages": 3,
+    "request": 10
+  }
+}

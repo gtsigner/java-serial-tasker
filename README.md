@@ -106,6 +106,38 @@ Windows Java串口跳关软件--测试结果
               "value": 3
             }
           ],
+           "outputs": [
+                      {
+                        "port": "Y0",
+                        "device": "写字台电锁",
+                        "status": "4-0",
+                        "value": 2,
+                        "kind": 0
+                      },
+                      {
+                        "port": "Y1",
+                        "device": "光电开关",
+                        "status": "10-1", //从0开始表示第几个自己的第几位
+                        "value": 2,//默认2=未知，1 0代表高低电
+                        "kind": 1  //输入显示中：0 相同，1取反
+                      }
+                    ],
+                    "inputs": [
+                      {
+                        "port": "X0",
+                        "device": "写字台电锁",
+                        "status": "4-0",
+                        "value": 2,
+                        "kind": 0
+                      },
+                      {
+                        "port": "X1",
+                        "device": "光电开关",
+                        "status": "5-2",
+                        "value": 2,
+                        "kind": 0 //0 相同，1取反
+                      }
+                    ],
           "current": -1  //当前状态
         },
         {

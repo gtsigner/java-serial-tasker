@@ -2,9 +2,11 @@ package com.oeynet.dev.mockserver.controller;
 
 import com.oeynet.dev.mockserver.api.Config;
 import com.oeynet.dev.mockserver.domain.models.ConfigGame;
+import com.oeynet.dev.mockserver.domain.models.ConfigRoom;
 import com.oeynet.dev.mockserver.domain.models.ConfigRoot;
 import com.oeynet.dev.mockserver.domain.models.Message;
 import com.oeynet.dev.mockserver.serial.SerialProtocolType;
+import com.oeynet.dev.mockserver.utils.ByteUtil;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -213,6 +215,64 @@ public class GameController {
         map.put("data", roomId + level);
         Config.getInstance().getSerialPort().sendSetCmd((byte) level, (byte) roomId);
         return map;
+    }
+
+    /**
+     * setOutput
+     * 设置输出状态
+     *
+     * @param gameId 游戏ID
+     * @return
+     */
+    @RequestMapping(value = "/{id}/setOutput")
+    public Map<String, Object> setOutput(@PathVariable("id") Integer gameId, @RequestBody Map<String, Object> reqMap) {
+        int roomId = (int) reqMap.get("room");
+        String status = (String) reqMap.get("status");
+        Map<String, Object> mapper = new HashMap<>();
+        mapper.put("message", "success");
+        mapper.put("code", 1001);
+        mapper.put("data", "");
+
+        //1.先获取当前房间的状态
+        ArrayList<ConfigRoom> rooms = Config.getInstance().getGame(gameId).getRooms();
+        //2.查询指定Room
+        ConfigRoom room = null;
+        for (int i = 0; i < rooms.size(); i++) {
+            if (roomId == rooms.get(i).getId()) {
+                room = rooms.get(i);
+                break;
+            }
+            continue;
+        }
+        if (room == null) {
+            mapper.put("code", 1004);
+            mapper.put("message", "没有找到指定房间号");
+        }
+        //3.封装包体,然后发送数据包就可以了
+        byte[] bodies = new byte[4];
+        bodies[0] = 0x1;
+        String[] str = room.getBody().split("\\,");
+        bodies[0] = (byte) Integer.parseInt(str[6], 16);
+        bodies[1] = (byte) Integer.parseInt(str[7], 16);
+        bodies[2] = 0x0;//00填充
+        bodies[3] = (byte) Integer.parseInt(str[9], 16);
+
+        String[] names = status.split("-");
+        int w = Integer.parseInt(names[0]) - 10;//字节
+        int v = Integer.parseInt(names[1]);//第几位
+        byte bt = bodies[w];
+        //设置V
+        String r = ByteUtil.byte2BinStr(bt);
+        //替换第几位的值
+        char a = r.charAt(v) == '0' ? '1' : '0';
+        //设置
+        char[] chars = r.toCharArray();
+        chars[v] = a;
+        r = String.valueOf(chars);
+        bodies[w] = Byte.parseByte(r, 2);
+        //先获取原来的
+        Config.getInstance().getSerialPort().sendSetBuffers(bodies, (byte) roomId);
+        return mapper;
     }
 }
 //3E 7B 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 13 00 7D 0D 0A

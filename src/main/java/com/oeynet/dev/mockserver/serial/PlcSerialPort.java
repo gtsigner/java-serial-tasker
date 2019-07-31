@@ -162,6 +162,24 @@ public class PlcSerialPort {
         this.sendBuffers(buffer, SerialProtocolType.TYPE_SET_COMMAND);
     }
 
+
+    /**
+     * 发送设置指令
+     *
+     * @param addr
+     */
+    public synchronized void sendSetBuffers(byte[] body, byte addr) {
+        int no = buildRequestNo();
+        byte[] buffer = PlcPacket.buildSendPacket(SerialProtocolType.SET_COMMAND, addr, (byte) 0x0, no);
+        //设置从9=13
+        buffer[9] = body[0];
+        buffer[10] = body[1];
+        buffer[11] = 0x00;
+        buffer[12] = body[3];
+        this.sendBuffers(buffer, SerialProtocolType.TYPE_SET_COMMAND);
+    }
+
+
     public synchronized void close() {
         try {
             inputStream.close();

@@ -15,10 +15,17 @@
                             <span class="sep">|</span>
                             <span class="device">设备</span>
                         </div>
-                        <div v-for="(lv,t) in room.outputs" class="color-blue level-item">
-                            <div class="cursor-pointer port" @click="change(room,lv)">
+                        <div v-for="(lv,t) in room.outputs" class="color-blue level-item cursor-pointer"
+                             @click="change(room,lv)">
+                            <div class=" port">
                                 <span class="value">{{lv.port}}</span>
-                                <span class="status-pointer"></span>
+                                <span class="status-val none" v-if="lv.value===2">未知</span>
+                                <slot v-if="lv.kind===1">
+                                    <span class="status-val active" v-if="lv.value===0"></span>
+                                </slot>
+                                <slot v-else>
+                                    <span class="status-val active" v-if="lv.value===1"></span>
+                                </slot>
                             </div>
                             <div class="sep">|</div>
                             <div class="device">
@@ -34,7 +41,7 @@
     </div>
 </template>
 <style lang="scss" scoped>
-    .device {
+    .device, .port {
         display: inline-block !important;
 
         .status-val {
@@ -56,6 +63,11 @@
             }
         }
     }
+
+    .port {
+        display: inline-block;
+        position: relative;
+    }
 </style>
 
 <script>
@@ -69,29 +81,29 @@
         computed: {
             rooms() {
                 return this.$store.state.rooms;
+            },
+            gameId() {
+                return this.$route.params.id;
             }
         },
         methods: {
             /**
              * 修改当前状态
              * @param room
-             * @param level
+             * @param lv
              * @returns {Promise<void>}
              */
-            async change(room, level) {
-                const res = await http.post(`/game/${this.gameId}/set`, {
+            async change(room, lv) {
+                if (false === confirm(`是否要切换【${lv.port}】${lv.device}的状态？`)) return;
+                const val = lv.value == 0 ? 1 : 0;
+                const res = await http.post(`/game/${this.gameId}/setOutput`, {
                     room: room.id,
-                    level: level.value
+                    ...lv,
+                    value: val
                 });
                 if (!res.ok) {
                     this.$Message.error("服务器发送失败");
                 }
-
-                const message = `切换房间：${room.title} 到关卡: ${level.title} 中....`;
-                this.$Notice.info({
-                    title: '切换关卡',
-                    desc: message
-                })
             },
 
         },
@@ -153,7 +165,7 @@
         display: flex;
 
         .port {
-            width: 40px;
+            flex: 1;
         }
 
         .sep {
@@ -162,7 +174,7 @@
         }
 
         .device {
-            flex: 1;
+            flex: 2;
         }
     }
 
