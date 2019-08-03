@@ -72,27 +72,6 @@
             }
         },
         methods: {
-            /**
-             * 修改当前状态
-             * @param room
-             * @param level
-             * @returns {Promise<void>}
-             */
-            async change(room, level) {
-                const res = await http.post(`/game/${this.gameId}/set`, {
-                    room: room.id,
-                    level: level.value
-                });
-                if (!res.ok) {
-                    this.$Message.error("服务器发送失败");
-                }
-
-                const message = `切换房间：${room.title} 到关卡: ${level.title} 中....`;
-                this.$Notice.info({
-                    title: '切换关卡',
-                    desc: message
-                })
-            },
 
         },
         async created() {

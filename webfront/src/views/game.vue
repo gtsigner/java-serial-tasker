@@ -11,9 +11,9 @@
             <i-button type="success" @click="setStart">一键开始</i-button>
             <i-button type="success" @click="testLine">测试线路</i-button>
             <i-button type="primary" @click="refresh">立即同步</i-button>
-            <i-button type="info" size="small" @click="levelControl">关卡状态</i-button>
-            <i-button type="info" size="small" @click="outputControl">输出控制</i-button>
-            <i-button type="info" size="small" @click="inputStatus">输入状态</i-button>
+            <i-button type="info" @click="levelControl">关卡状态</i-button>
+            <i-button type="info" @click="outputControl">输出控制</i-button>
+            <i-button type="info" @click="inputStatus">输入状态</i-button>
         </div>
         <div class="room-container mt-5">
             <router-view></router-view>
@@ -86,27 +86,6 @@
             async refresh() {
                 await this.getGame();
                 this.$Message.success("数据同步成功");
-            },
-            /**
-             * 修改当前状态
-             * @param room
-             * @param level
-             * @returns {Promise<void>}
-             */
-            async change(room, level) {
-                const res = await http.post(`/game/${this.gameId}/set`, {
-                    room: room.id,
-                    level: level.value
-                });
-                if (!res.ok) {
-                    this.$Message.error("服务器发送失败");
-                }
-
-                const message = `切换房间：${room.title} 到关卡: ${level.title} 中....`;
-                this.$Notice.info({
-                    title: '切换关卡',
-                    desc: message
-                })
             },
             //获取系统通知
             async getNotices() {

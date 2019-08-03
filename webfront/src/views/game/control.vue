@@ -101,9 +101,7 @@
                     ...lv,
                     value: val
                 });
-                if (!res.ok) {
-                    this.$Message.error("服务器发送失败");
-                }
+                this.$Message.info("提交指令成功");
             },
 
         },

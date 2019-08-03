@@ -46,6 +46,9 @@
              * @returns {Promise<void>}
              */
             async change(room, level) {
+                if (false === confirm(`是否确认切换房间【${room.title}】到关卡【${level.title}】？`)) {
+                    return;
+                }
                 const res = await http.post(`/game/${this.gameId}/set`, {
                     room: room.id,
                     level: level.value

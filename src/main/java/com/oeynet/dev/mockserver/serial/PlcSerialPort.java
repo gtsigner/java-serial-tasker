@@ -265,7 +265,7 @@ public class PlcSerialPort {
 
         //验证是什么锁，需要锁住多少时间，默认全部5s
         this.timeout = 0;
-        this.lock = 5;
+        this.lock = 10;//锁5s
     }
 
     //验证是否超时需要释放锁

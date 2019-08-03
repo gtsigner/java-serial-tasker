@@ -13,7 +13,6 @@ import './assets/index.scss'
 Vue.config.productionTip = false;
 
 Vue.use(IView, {
-    size: 'large'
 });
 Vue.filter('formatDate', (timestamp, formatStr) => {
     return dayjs(timestamp * 1000).format(formatStr || 'YYYY-MM-DD HH:mm');
