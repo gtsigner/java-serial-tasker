@@ -115,7 +115,7 @@ public class PlcSerialPort {
         //再发松之前先添加到队列里面
         PlcRequest request = new PlcRequest();
         request.setBuffer(buff);
-
+        System.out.println("添加数据包到队列：" + Arrays.toString(buff));
         if (type == TYPE_SET_COMMAND) {
             if (config.getCurrent().getQueue().getRequest() <= setQueue.size()) {
                 setQueue.poll();//废弃之前的请求
